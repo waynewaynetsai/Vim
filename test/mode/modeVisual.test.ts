@@ -1,3 +1,4 @@
+import { newTestOnly } from './../testSimplifier';
 import * as assert from 'assert';
 
 import { getAndUpdateModeHandler } from '../../extension';
@@ -1734,4 +1735,78 @@ suite('Mode Visual', () => {
       endMode: Mode.Normal,
     });
   });
+
+  suite(
+    'Command vim.switchToInsertModeSelection enter insert mode with previous selection at visual mode',
+    () => {
+      newTest({
+        title: 'Can handle single selection with vim.switchToInsertModeSelection command',
+        config: {
+          visualModeKeyBindings: [
+            {
+              before: ['<leader>', 's'],
+              commands: ['vim.switchToInsertModeSelection'],
+            },
+          ],
+          leader: ' ',
+        },
+        start: [
+          `"vim.normalModeKeyBindingsNonRecursive": [`,
+          `  {`,
+          `    "before": ["|j"],`,
+          `    "after": ["g", "j"],`,
+          `  },`,
+          `]`,
+        ],
+        keysPressed: 'ggve s<Esc>',
+        end: [
+          `"vi|m.normalModeKeyBindingsNonRecursive": [`,
+          `  {`,
+          `    "before": ["j"],`,
+          `    "after": ["g", "j"],`,
+          `  },`,
+          `]`,
+        ],
+        endMode: Mode.Normal,
+      });
+
+      newTestOnly({
+        title: 'Can handle multiple selection with vim.switchToInsertModeSelection command',
+        config: {
+          visualModeKeyBindings: [
+            {
+              before: ['1'],
+              commands: ['vim.switchToInsertModeSelection'],
+            },
+          ],
+        },
+        start: [
+          `"vim.normalModeKeyBindingsNonRecursive": [`,
+          `  {`,
+          `    "b|efore": ["j"],`,
+          `    "after": ["g", "j"],`,
+          `  },`,
+          `  {`,
+          `    "before": ["k"],`,
+          `    "after": ["f", "s"],`,
+          `  },`,
+          `]`,
+        ],
+        keysPressed: 'viw1a<Esc>',
+        end: [
+          `"vim.normalModeKeyBindingsNonRecursive": [`,
+          `  {`,
+          `    "|a": ["j"],`,
+          `    "after": ["g", "j"],`,
+          `  },`,
+          `  {`,
+          `    "a": ["k"],`,
+          `    "after": ["f", "s"],`,
+          `  },`,
+          `]`,
+        ],
+        endMode: Mode.Normal,
+      });
+    }
+  );
 });
