@@ -1743,14 +1743,14 @@ suite('Mode Visual', () => {
         await modeHandler.handleMultipleKeyEvents(['i', 'h', 'e', 'l', 'l', 'o']);
         await modeHandler.handleMultipleKeyEvents(['<Esc>', 'g', 'g', 'v', 'e']);
 
-        const selection = modeHandler.vimState.editor.selection;
-
         /**
          * Since `vscode.commands.executeCommand` api's returned thenable object doesn't works well with async/await,
          * we invoke assert function at thenable's callback function directly.
          */
         vscode.commands.executeCommand('vim.switchToInsertModeSelection').then((_) => {
           assert.strictEqual(modeHandler.currentMode, Mode.Insert, 'switch to insert mode');
+
+          const selection = modeHandler.vimState.editor.selection;
 
           assert.strictEqual(selection.start.character, 0);
           assert.strictEqual(selection.start.line, 0);
@@ -1776,10 +1776,10 @@ suite('Mode Visual', () => {
         ]);
         await modeHandler.handleMultipleKeyEvents(['<Esc>', 'g', 'g', 'g', 'b', 'g', 'b']);
 
-        const selection = modeHandler.vimState.editor.selections;
-
         vscode.commands.executeCommand('vim.switchToInsertModeSelection').then((_) => {
           assert.strictEqual(modeHandler.currentMode, Mode.Insert, 'switch to insert mode');
+
+          const selection = modeHandler.vimState.editor.selections;
 
           assert.strictEqual(selection[0].start.character, 0);
           assert.strictEqual(selection[0].start.line, 0);
